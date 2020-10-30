@@ -1,0 +1,138 @@
+.cart-navbar {
+    position: relative;
+    width: 100%;
+    height: 50px;
+    background: #F0F0F0;
+    border-bottom: 1px solid black;
+}
+
+.cart-title {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    color: #236192;
+}
+
+.cart-navbar-text {
+    color: white;
+    overflow: auto;
+    position: absolute;
+    left: 5px;
+}
+
+.cart-navbar-print {
+    overflow: auto;
+    margin: auto;
+    position: absolute;
+    left: 0;
+    top: 20%;
+    height: 60%;
+}
+
+.cart-navbar-delete {
+    overflow: auto;
+    margin: auto;
+    position: absolute;
+    right: 0;
+    top: 20%;
+    height: 60%;
+    cursor: pointer;
+}
+
+.cart-navbar-delete:hover {
+    overflow: auto;
+    margin: auto;
+    position: absolute;
+    right: 0;
+    top: 20%;
+    height: 60%;
+    cursor: pointer;
+}
+
+.cart-category-title {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background-color: white;
+    height: 35px;
+    font-size: 20px;
+    margin-top: 5px;
+    color: #236192;
+    border-bottom: 1px solid black;
+    text-align: center;
+}
+
+.cart-category {
+    position: relative;
+    width: 100%;
+    background-color: white;
+    height: 40px;
+    font-size: 20px;
+    display: grid;
+    grid-template-columns: calc(35% - 5px) calc(35% - 5px) 10%;
+    grid-gap: 5px;
+    border-bottom: 1px solid #236192;
+    text-align: center;
+}
+
+.cart-product {
+    position: relative;
+    width: 100%;
+    background-color: white;
+    height: 40px;
+    font-size: 20px;
+    display: grid;
+    grid-template-columns: calc(70% - 5px) calc(20% - 5px) 10%;
+    grid-gap: 5px;
+    border-bottom: 1px solid black;
+}
+
+.cart-card:hover {
+    box-shadow: 0 2px 4px 0 rgba(0,0,0,0.5);
+}
+
+.cart-product-image {
+    width: 100%;
+}
+
+.cart-product-name {
+    width: calc(100% - 5px);
+    height: calc(100% - 7px);
+    margin: 0;
+    margin-left: 5px;
+    margin-top: 5px;
+    overflow: hidden;
+    font-size: 16px;
+
+}
+
+.cart-product-category {
+    width: 100%;
+    height: calc(100% - 7px);
+    margin: 0;
+    margin-top: 7px;
+    overflow: hidden;
+    font-size: 16px;
+}
+
+.cart-product-input {
+    width: 100%;
+    height: calc(100% - 8px);
+    margin: 0;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    text-align: center;
+    overflow: hidden;
+    font-size: 16px;
+    border: 0;
+    padding: 0px;
+}
+
+.cart-product-delete {
+    height: 75%;
+    margin-top: 5px;
+    cursor: pointer;
+}

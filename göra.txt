@@ -1,0 +1,2 @@
+click ikon när man hovrar cart saker
+kategori som titel itstället i cart

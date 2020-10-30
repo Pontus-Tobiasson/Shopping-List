@@ -1,0 +1,2 @@
+varning när kategori läggs till/tas bort
+när sista från en kategori tas bort flytta till "all" category
