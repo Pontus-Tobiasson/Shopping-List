@@ -1,7 +1,7 @@
 const MongoClient = require('mongodb').MongoClient;
 //const dburl = "mongodb://localhost:27017/";
 const dburl = "mongodb://heroku_0hc88pq5:ajv5eoc8L2xCb@ds259577.mlab.com:59577/heroku_0hc88pq5";
-const port = process.env.PORT || 3000; // 8080
+const port = process.env.PORT || 8080;
 const database = "heroku_0hc88pq5"; // shoppingdb
 
 
@@ -627,4 +627,4 @@ http.createServer(function (request, response) {
     });
 
     console.log("listening")
-}).listen(8080);
+}).listen(port);
