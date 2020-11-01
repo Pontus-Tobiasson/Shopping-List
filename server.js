@@ -1,5 +1,9 @@
 const MongoClient = require('mongodb').MongoClient;
-const dburl = "mongodb://localhost:27017/";
+//const dburl = "mongodb://localhost:27017/";
+const dburl = "mongodb://heroku_0hc88pq5:ajv5eoc8L2xCb@ds259577.mlab.com:59577/heroku_0hc88pq5";
+const port = process.env.PORT || 3000;
+//8080
+
 
 //const MongoClient = require('mongodb').MongoClient;
 //const dburl = "mongodb+srv://Pontus:0PS98cL5U1Ud0p5i@cluster0.26pqd.gcp.mongodb.net/shoppingdb?retryWrites=true&w=majority";
@@ -10,6 +14,8 @@ const path = require('path');
 const fs = require('fs');
 
 http.createServer(function (request, response) {
+    // let dbo = db.db("shoppingdb");
+    let dbo = db.db("heroku_0hc88pq5");
     console.log("creating server")
     console.log("Request URL: " + request.url);
     console.log("Request Method: " + request.method);
@@ -31,7 +37,6 @@ http.createServer(function (request, response) {
     {
         MongoClient.connect(dburl, { useUnifiedTopology: true }, function(error, db) {
             if (error) throw error;
-            let dbo = db.db("shoppingdb");
             let name = decodeURI(request.url.slice(8));
             if (name.indexOf("?") !== -1) name = name.slice(0, name.indexOf("?"));
             const sharp = require('sharp');
@@ -87,7 +92,6 @@ http.createServer(function (request, response) {
     {
         MongoClient.connect(dburl, { useUnifiedTopology: true }, function(error, db) {
             if (error) throw error;
-            let dbo = db.db("shoppingdb");
             // Get product data from MongoDB and then send the data to the client
             dbo.collection("products").find({}, { projection: { _id: 0 } }).toArray(function(error, products) {
                 if (error) throw error;
@@ -105,7 +109,6 @@ http.createServer(function (request, response) {
     {
         MongoClient.connect(dburl, { useUnifiedTopology: true }, function(error, db) {
             if (error) throw error;
-            var dbo = db.db("shoppingdb");
             let name = decodeURI(request.url.slice(10));
             // Get product data from MongoDB and then send the data to the client
             dbo.collection("products").findOne({ name: name }, { projection: { _id: 0 } }, function(error, product) {
@@ -124,7 +127,6 @@ http.createServer(function (request, response) {
     {
         MongoClient.connect(dburl, { useUnifiedTopology: true }, function(error, db) {
             if (error) throw error;
-            let dbo = db.db("shoppingdb");
             // Get products ids from the product collection
             dbo.collection("products").find({}).toArray(function(error, products) {
                 if (error) throw error;
@@ -154,7 +156,6 @@ http.createServer(function (request, response) {
     {
         MongoClient.connect(dburl, { useUnifiedTopology: true }, function(error, db) {
             if (error) throw error;
-            let dbo = db.db("shoppingdb");
             name = decodeURI(request.url.slice(6));
             // Get product id from the product collection
             dbo.collection("products").findOne({ name: name }, function(error, product) {
@@ -198,7 +199,6 @@ http.createServer(function (request, response) {
                 // add the product if it doesn't already exist
                 MongoClient.connect(dburl, { useUnifiedTopology: true }, function(error, db) {
                     if (error) throw error;
-                    var dbo = db.db("shoppingdb");
                     // Check if the product already exists
                     let caseInsensitive = new RegExp("^" + product.name + "$", "i");
                     dbo.collection("products").find({ name: caseInsensitive }).toArray(function(error, products) {
@@ -261,7 +261,6 @@ http.createServer(function (request, response) {
     {
         MongoClient.connect(dburl, { useUnifiedTopology: true }, function(error, db) {
             if (error) throw error;
-            var dbo = db.db("shoppingdb");
             let name = decodeURI(request.url.slice(10));
             dbo.collection("products").find({ name: name }).toArray(function(error, product) {
                 if (error) throw error;
@@ -318,7 +317,6 @@ http.createServer(function (request, response) {
                 // add the product if it doesn't already exist
                 MongoClient.connect(dburl, { useUnifiedTopology: true }, function(error, db) {
                     if (error) throw error;
-                    var dbo = db.db("shoppingdb");
                     // Check if the product already exists
                     let caseInsensitive = new RegExp("^" + product.name + "$", "i");
                     dbo.collection("products").find({ name: caseInsensitive }).toArray(function(error, products) {
@@ -414,7 +412,6 @@ http.createServer(function (request, response) {
     {
         MongoClient.connect(dburl, function(error, db) {
             if (error) throw error;
-            var dbo = db.db("shoppingdb");
             dbo.collection("cart").drop(function(error, result) {
                 db.close();
                 if (error) {
@@ -438,7 +435,6 @@ http.createServer(function (request, response) {
     {
         MongoClient.connect(dburl, { useUnifiedTopology: true }, function(error, db) {
             if (error) throw error;
-            var dbo = db.db("shoppingdb");
             name = decodeURI(request.url.slice(6));
             // Find the products id
             dbo.collection("products").find({ name: name }).toArray(function(error, product) {
@@ -478,7 +474,6 @@ http.createServer(function (request, response) {
                 if (newProduct.value < 0 || newProduct.value === null) newProduct.value = 0;
                 MongoClient.connect(dburl, { useUnifiedTopology: true }, function(error, db) {
                     if (error) throw error;
-                    let dbo = db.db("shoppingdb");
                     // Get product id from the products collection
                     dbo.collection("products").findOne({ name: name }, function(error, product) {
                         if (error) throw error;
@@ -530,7 +525,6 @@ http.createServer(function (request, response) {
             product = JSON.parse(Buffer.concat(body).toString());
             MongoClient.connect(dburl, { useUnifiedTopology: true }, function(error, db) {
                 if (error) throw error;
-                let dbo = db.db("shoppingdb");
                 let reply = [];
                 // Get products ids from the products collection
                 dbo.collection("products").find().toArray(function(error, products) {
@@ -622,4 +616,4 @@ http.createServer(function (request, response) {
     });
 
     console.log("listening")
-}).listen(8080);
+}).listen(port);
