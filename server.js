@@ -1,8 +1,9 @@
 const MongoClient = require('mongodb').MongoClient;
 //const dburl = "mongodb://localhost:27017/";
-const dburl = "mongodb://heroku_0hc88pq5:ajv5eoc8L2xCb@ds259577.mlab.com:59577/heroku_0hc88pq5";
+//const dburl = "mongodb://pontus:ljbnf71nvxX81.mlab.com:59577/heroku_0hc88pq5";
+const dburl = "mongodb+srv://Pontus:0PS98cL5U1Ud0p5i@cluster0.26pqd.gcp.mongodb.net/shoppingdb?retryWrites=true&w=majority";
 const port = process.env.PORT || 8080;
-const database = ""; // shoppingdb
+const database = "shoppingdb"; // shoppingdb
 
 
 
