@@ -1,6 +1,6 @@
 const MongoClient = require('mongodb').MongoClient;
 //const dburl = "mongodb://localhost:27017/";
-const dburl = "mongodb+srv://Pontus:0PS98cL5U1Ud0p5i@cluster0.26pqd.gcp.mongodb.net/shoppingdb?retryWrites=true&w=majority";
+const dburl = "mongodb+srv://MONGODB_USERNAME:MONGODB_PASSWORD@cluster0.26pqd.gcp.mongodb.net/shoppingdb?retryWrites=true&w=majority";
 const port = process.env.PORT || 8080;
 const database = "shoppingdb";
 
