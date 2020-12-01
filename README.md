@@ -5,5 +5,5 @@ The client is written using HTML, CSS, JavaScript and React. The server uses Nod
 
 The application requests currency data rates from the [Exchange rates API](https://exchangeratesapi.io/ "Exchange rates API Homepage") and then dynamically updates the web page using the new data from the server.
 
-The application is available to be tested at pontus-shopping-list.herokuapp.com.
-The database for the running demo is hosted at mongodb.com
+The application is available to be tested at www.pontus-shopping-list.herokuapp.com.
+The database for the running demo is hosted at www.mongodb.com
