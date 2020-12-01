@@ -1,2 +1,1 @@
-const serverAddress = ""; // http://localhost:8080
-export default serverAddress;
+export const serverAddress = "http://localhost:8080"; // http://localhost:8080

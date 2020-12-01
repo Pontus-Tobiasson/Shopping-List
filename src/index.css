@@ -20,7 +20,7 @@ body {
 
 .page {
     grid-template-columns: auto 3fr 1fr;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto minmax(0,1fr);
 }
 
 .navbar {
@@ -31,9 +31,9 @@ body {
 .categories {
     grid-row: 2;
     grid-column: 1;
-    max-width: 300px;
     border: solid 1px #C0C0C0;
     background: #FFFFFF;
+    overflow: auto;
 }
 
 .product-list {
@@ -45,7 +45,6 @@ body {
     grid-row: 2;
     grid-column: 3;
     transition: right 300ms;
-    max-width: 300px;
 }
 
 .categories-dropdown {
@@ -179,13 +178,14 @@ body {
 
 .title {
     font-weight: bold;
-    color: #236192;
+    color: #FFFFFF;
 }
 
 .categories {
     box-sizing: border-box;
     background: #FFFFFF;
     min-width: 128px;
+    max-width: 300px;
 }
 
 .product-list {
@@ -196,6 +196,10 @@ body {
 .cart {
     border: solid 1px #C0C0C0;
     background: #FFFFFF;
+    max-width: 450px;
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    color: #36454f;
 }
 
 .cart h3 {
@@ -203,19 +207,9 @@ body {
 }
 
 .category::before {
-    content: " ";
-
-    font-family: 'Material Icons';
-    font-size: 16px;
     display: inline-block;
     color: #7c8085;
-
-    width: 16px;
-    height: 16px;
-    font-feature-settings: 'liga';
-
     margin-right: 12px;
-    /*transform: rotate(90deg);*/
 }
 
 .category:hover::before {
@@ -234,12 +228,21 @@ body {
     align-items: center;
     cursor: pointer;
     padding: 8px;
+    padding-left: 34px;
 }
 
 .category-target
 {
+    padding-left: 0px;
     color: #f0f0f0;
     background-color: #236192;
+}
+
+.category-target-icon {
+    padding: 0px;
+    padding-left: 8px;
+    padding-right: 8px;
+    font-size: 20px;
 }
 
 .category:hover {

@@ -3,14 +3,9 @@ import { AppContext } from './index';
 
 const SearchBar = () => {
     const [products, setProducts, category, setCategory, search, setSearch, cart, setCart] = useContext(AppContext);
-    const handleChange = setChange.bind(this);
-
-    function setChange(event) {
-        setSearch(event.target.value);
-    }
-
+    
     return (
-        <input className="searchBar" type="text" id="searchBar" placeholder="Search" onChange={handleChange}></input>
+        <input className="searchBar" type="text" id="searchBar" placeholder="Search" onChange={(event) => setSearch(event.target.value)}></input>
     );
 }
 

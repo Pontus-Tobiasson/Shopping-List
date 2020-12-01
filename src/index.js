@@ -1,37 +1,33 @@
-import React, { useState, useContext, createContext } from 'react';
+import React, { useState, createContext } from 'react';
 import ReactDOM from 'react-dom';
 import '../src/index.css';
 import NavBar from './NavBar.js';
 import Categories from './Categories.js';
 import ProductList from './ProductList.js';
 import Cart from './Cart.js';
-import serverAddress from './Variables.js'
+import { serverAddress } from './Variables.js'
 
 export const AppContext = createContext();
 
 export const App = () => {
     const [products, setProducts] = useState([]);
-    if (products.length === 0) refreshProducts(); // initiate
     const [category, setCategory] = useState("All");
     const [cart, setCart] = useState(false);
     const [search, setSearch] = useState("");
 
-    // Get and update using the latest data from the server
+    const [initiated, setInitiated] = useState(false);
+    if (!initiated) {
+        setInitiated(true);
+        refreshProducts();
+    }
+
     function refreshProducts() {
-        let newProducts = [];
-        fetch(serverAddress+"/products", { method: 'GET' })
+        fetch(serverAddress + "/products", { method: 'GET' })
         .then(response => response.json())
-        .then(prods => {
-            fetch(serverAddress+"/cart", { method: 'GET' })
+        .then(serverProducts => {
+            fetch(serverAddress + "/cart", { method: 'GET' })
             .then(response => response.json())
-            .then(cart => {
-                for (let product in prods) {
-                    newProducts.push({ name: prods[product].name, category: prods[product].category,
-                        value: cart.find(item => item.name === prods[product].name) ? cart.find(item => item.name === prods[product].name).value : 0 });
-                }
-                newProducts.sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
-                setProducts(newProducts);
-            })
+            .then(serverCart => loadProducts(serverProducts, setProducts, serverCart))
             .catch(function(error) {
                 console.log(error);
             });
@@ -54,3 +50,13 @@ export const App = () => {
 }
 
 ReactDOM.render(<App />, document.getElementById('root'));
+
+function loadProducts(products, setProducts, cart) {
+    const newProducts = [];
+    for (let product in products) {
+        newProducts.push({ name: products[product].name, category: products[product].category,
+            value: cart.find(item => item.name === products[product].name) ? cart.find(item => item.name === products[product].name).value : 0 });
+    }
+    newProducts.sort((a,b) => (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : ((b.name.toLowerCase() > a.name.toLowerCase()) ? -1 : 0));
+    setProducts(newProducts);
+}

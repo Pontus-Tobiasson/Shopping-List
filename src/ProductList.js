@@ -2,7 +2,7 @@ import React, { useState, useContext, createContext } from 'react';
 import { AppContext } from './index';
 import validateNumericInput from './validateNumericInput.js';
 import '../src/ProductList.css';
-import serverAddress from './Variables.js'
+import { serverAddress } from './Variables.js'
 
 // Product in the product list
 const Product = (props) => {
@@ -17,9 +17,8 @@ const Product = (props) => {
 
     function remove() {
         fetch(serverAddress+"/products/"+props.name, { method: 'DELETE' })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);
+        .then(response => {
+            if (response.status === 200) {
             let card = document.getElementById("product-card-"+props.name);
             card.style.opacity = '0';
             window.setTimeout(
@@ -31,34 +30,20 @@ const Product = (props) => {
                         setCategory("All");
                     }
                 }, 1250);
-            })
-            .catch(function(error) {
-                console.log(error);
-            });
-        }
+            }
+        })
+        .catch(function(error) {
+               console.log(error);
+        });
+    }
 
-        const handleName = changeName.bind(this);
-        function changeName(event) {
-            setNewName(event.target.value);
-        }
-
-        const handleCategory = changeCategory.bind(this);
-        function changeCategory(event) {
-            setNewCategory(event.target.value);
-        }
-
-        const handleValue = changeValue.bind(this);
-        function changeValue(event) {
-            sendValue(parseInt(event.target.value, 10));
-        }
+        const handleName = (event) => setNewName(event.target.value);
+        const handleCategory = (event) => setNewCategory(event.target.value);
+        const handleValue = (event) => sendValue(parseInt(event.target.value, 10));
 
         function sendValue(value) {
-            fetch(serverAddress+"/cart/"+props.name, { method: 'PUT', body: JSON.stringify({ name: props.name, value: value })})
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                props.refreshProducts();
-            })
+            fetch(serverAddress+"/cart/"+props.name, { method: 'PUT', body: JSON.stringify({ value: value })})
+            .then(() => props.refreshProducts())
             .catch(function(error) {
                 console.log(error);
             });
@@ -107,13 +92,13 @@ const Product = (props) => {
             for (let i = 0; i < files.length; i++) {
                 file = files[i];
                 let imageType = /image.*/;
-                if (!file.type.match(imageType)){continue;}
+                if (!file.type.match(imageType)) continue;
             }
             setImage(file);
 
             // Draw a preview image of the dropped file on a canvas
-            let preview = document.createElement("img");
-            let reader = new FileReader();
+            const preview = document.createElement("img");
+            const reader = new FileReader();
             reader.onload=(function(previewImage){
                 return function(event) {
                     previewImage.onload=function(){
@@ -132,31 +117,26 @@ const Product = (props) => {
         }
 
         function save() {
-            if (products.filter(product => product.category === newCategory).length === 0)
+            if (!products.some(product => product.category === newCategory))
             if(!window.confirm("Are you sure you want to create the new category " + newCategory + "?"))
             return;
 
             const formData = new FormData();
             formData.append('name', newName);
+            if (newName === "") {
+                alert("Please enter a name");
+                return;
+            }
             formData.append('category', newCategory);
+            if (newCategory === "") {
+                alert("Please enter a category");
+                return;
+            }
             formData.append('image', image);
-            console.log(formData);
-            const options = {
-                method: 'PUT',
-                body: formData,
-            };
-            fetch(serverAddress+"/products/"+props.name, options)
+            fetch(serverAddress + "/products/" + props.name, {method: 'PUT', body: formData})
             .then(response => {
                 if (response.status === 200) {
-                    if (cacheNumbers[props.name] === undefined) {
-                        let tempCache = cacheNumbers;
-                        tempCache[props.name] = 0;
-                        setCacheNumbers(tempCache);
-                    } else {
-                        let tempCache = cacheNumbers;
-                        tempCache[props.name]++;
-                        setCacheNumbers(tempCache);
-                    }
+                    cacheNumbers[newName] = (cacheNumbers[newName] || 0) + 1;
                     props.refreshProducts();
                     setEditing(false);
                 } else if (response.status === 409)
@@ -183,7 +163,7 @@ const Product = (props) => {
             <div className="product-card-input">
             <img className="product-card-input-minus" onClick={() => sendValue(props.value - 1)}></img>
             <div>
-            <input type="text" className="product-card-input-text" onKeyPress={validateNumericInput.bind(this)} onChange={handleValue} value={props.value}></input>
+            <input type="text" className="product-card-input-text" onKeyPress={validateNumericInput.bind(this)} onChange={handleValue} value={parseInt(props.value, 10)}></input>
             </div>
             <img className="product-card-input-plus" onClick={() => sendValue(props.value + 1)}></img>
             </div>
@@ -194,7 +174,7 @@ const Product = (props) => {
             <img className="product-card-icon blue-hover" src={require("../src/images/save-black.svg")} onClick={() => save()} alt={"Save icon"}></img>
             <img className="product-card-expand" src={require("../src/images/expand_more-black.svg")} alt={"Expand icon"}></img>
             </div>
-            <input type="text" className="product-card-name" onChange={handleName} placeholder={props.name} onChange={handleName}></input>
+            <input type="text" className="product-card-name" placeholder={props.name} onChange={handleName}></input>
             <div className="product-card-background"></div>
             <img className="transparent-image" src={serverAddress+"/images/"+props.name+"?"+cacheNumbers[props.name]}></img>
             <div className="drop-text">Drop New Image Here</div>
@@ -220,15 +200,8 @@ const Product = (props) => {
         const [image, setImage] = useState(null);
         const [creating, setCreating] = useState(false);
 
-        const handleName = changeName.bind(this);
-        function changeName(event) {
-            setNewName(event.target.value);
-        }
-
-        const handleCategory = changeCategory.bind(this);
-        function changeCategory(event) {
-            setNewCategory(event.target.value);
-        }
+        const handleName = (event) => setNewName(event.target.value);
+        const handleCategory = (event) => setNewCategory(event.target.value);
 
         const handleDragEnter = dragEnter.bind(this);
         function dragEnter(event) {
@@ -277,8 +250,8 @@ const Product = (props) => {
             setImage(file);
 
             // Draw a preview image of the dropped file on a canvas
-            let preview = document.createElement("img");
-            var reader=new FileReader();
+            const preview = document.createElement("img");
+            const reader = new FileReader();
             reader.onload=(function(previewImage){
                 return function(event) {
                     previewImage.onload=function(){
@@ -298,24 +271,20 @@ const Product = (props) => {
         function save() {
             const formData = new FormData();
             formData.append('name', newName);
+            if (newName === "") {
+                alert("Please enter a name");
+                return;
+            }
             formData.append('category', newCategory);
+            if (newCategory === "") {
+                alert("Please enter a category");
+                return;
+            }
             formData.append('image', image);
-            const options = {
-                method: 'POST',
-                body: formData,
-            };
-            fetch(serverAddress+"/products", options)
+            fetch(serverAddress+"/products", { method: 'POST', body: formData })
             .then(response => {
                 if (response.status === 200) {
-                    if (cacheNumbers[newName] === undefined) {
-                        let tempCache = cacheNumbers;
-                        tempCache[newName] = 0;
-                        setCacheNumbers(tempCache);
-                    } else {
-                        let tempCache = cacheNumbers;
-                        tempCache[newName]++;
-                        setCacheNumbers(tempCache);
-                    }
+                    cacheNumbers[newName] = (cacheNumbers[newName] || 0) + 1;
                     setSearch(newName);
                     props.refreshProducts();
                 } else if (response.status === 409) {
@@ -368,16 +337,8 @@ const Product = (props) => {
         const [cacheNumbers, setCacheNumbers] = useState([]);
 
         function displayProducts() {
-            let matchingProducts = [];
-            let exactMatch = false;
-            for (let product in products) {
-                if(products[product].name.toLowerCase() === search.toLowerCase() || products[product].category.toLowerCase() === search.toLowerCase() || search === "") exactMatch = true;
-                if ((products[product].category.toLowerCase() === category.toLowerCase() || category === "All")
-                && (products[product].name.toLowerCase().includes(search.toLowerCase()) || products[product].category.toLowerCase().includes(search.toLowerCase()) || search.length === 0 || search === false)) {
-                    matchingProducts.push(products[product]);
-                }
-            }
-            if (exactMatch) {
+            const matchingProducts = searchMatches(products, category, search);
+            if (exactSearchMatch(products, search)) {
                 return (
                     <CacheContext.Provider value={[cacheNumbers, setCacheNumbers]}>
                     <div className="product-container">
@@ -398,10 +359,34 @@ const Product = (props) => {
         }
 
         return (
-            <div>
+            <div className="product-list">
             {displayProducts()}
             </div>
         );
+    }
+
+    function exactSearchMatch(products, search) {
+        if (search === undefined || search === "") return true;
+        const search_L = search.toLowerCase();
+        for (let product in products) {
+            if (products[product].name.toLowerCase() === search_L || products[product].category.toLowerCase() === search_L) return true;
+        }
+        return false;
+    }
+
+    function searchMatches(products, selectedCategory, search) {
+        if (selectedCategory === "All" && (search === "" || search === undefined)) return products;
+        const matchingProducts = [];
+        const selectedCategory_L = selectedCategory.toLowerCase();
+        const search_L = search.toLowerCase();
+        for (let product in products) {
+            const name_L = products[product].name.toLowerCase();
+            const category_L = products[product].category.toLowerCase()
+            if ((selectedCategory === "All" || category_L === selectedCategory_L) && (name_L.includes(search_L) || category_L.includes(search_L))) {
+                matchingProducts.push(products[product]);
+            }
+        }
+        return matchingProducts;
     }
 
     export default ProductList;
