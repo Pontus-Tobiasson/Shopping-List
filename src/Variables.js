@@ -1,1 +1,1 @@
-export const serverAddres = ""; // http://localhost:8080
+export const serverAddress = ""; // http://localhost:8080
