@@ -40,8 +40,12 @@ const Product = (props) => {
         const handleName = (event) => setNewName(event.target.value);
         const handleCategory = (event) => setNewCategory(event.target.value);
         const handleValue = (event) => sendValue(parseInt(event.target.value, 10));
+        const handleSelect = (event) => event.target.select();
 
         function sendValue(value) {
+            let temp_products = products;
+            temp_products.find(product => product.name === props.name).value = value;
+            setProducts([...temp_products]);
             fetch(serverAddress+"/cart/"+props.name, { method: 'PUT', body: JSON.stringify({ value: value })})
             .then(() => props.refreshProducts())
             .catch(function(error) {
@@ -163,7 +167,7 @@ const Product = (props) => {
             <div className="product-card-input">
             <img className="product-card-input-minus" onClick={() => sendValue(props.value - 1)}></img>
             <div>
-            <input type="text" className="product-card-input-text" onKeyPress={validateNumericInput.bind(this)} onChange={handleValue} value={parseInt(props.value, 10)}></input>
+            <input type="text" className="product-card-input-text" onKeyPress={validateNumericInput.bind(this)} onClick={handleSelect} onChange={handleValue} value={parseInt(props.value, 10)}></input>
             </div>
             <img className="product-card-input-plus" onClick={() => sendValue(props.value + 1)}></img>
             </div>
@@ -195,13 +199,14 @@ const Product = (props) => {
     const CreateProduct = (props) => {
         const [products, setProducts, category, setCategory, search, setSearch, cart, setCart] = useContext(AppContext);
         const [cacheNumbers, setCacheNumbers] = useContext(CacheContext);
-        const [newName, setNewName] = useState("");
+        const [newName, setNewName] = useState(search);
         const [newCategory, setNewCategory] = useState("");
         const [image, setImage] = useState(null);
         const [creating, setCreating] = useState(false);
 
         const handleName = (event) => setNewName(event.target.value);
         const handleCategory = (event) => setNewCategory(event.target.value);
+        const handleSelect = (event) => event.target.select();
 
         const handleDragEnter = dragEnter.bind(this);
         function dragEnter(event) {
@@ -308,7 +313,7 @@ const Product = (props) => {
             <div className="product-create-prompt">
             <div className="product-create-text">{"Product does not exist."}</div>
             <div className="product-create-text">{"Do you want to create it?"}</div>
-            <div className="product-create-button" onClick={() => setCreating(true)}>Create</div>
+            <div className="product-create-button" onClick={() => {setCreating(true); setNewName(search);}}>Create</div>
             <div className="product-back-cancel" onClick={() => resetSearch()}>Cancel</div>
             </div>
             <div className="product-card-creating">
@@ -317,12 +322,12 @@ const Product = (props) => {
             <img className="product-card-icon blue-hover" src={require("../src/images/save-black.svg")} onClick={() => save()} alt={"Save icon"}></img>
             <img className="product-card-expand" src={require("../src/images/expand_more-black.svg")} alt={"Expand icon"}></img>
             </div>
-            <input type="text" className="product-card-name" onChange={handleName} placeholder="Name" onChange={handleName}></input>
+            <input type="text" className="product-card-name" onClick={handleSelect} onChange={handleName} value={newName}></input>
             <div className="product-card-background"></div>
             <div className="drop-text">Drop New Image Here</div>
             <canvas className="canvas-preview" id="canvas-create" width={94} height={94}></canvas>
             <div className="product-add-image" onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop}></div>
-            <input type="text" className="product-card-category" placeholder="Category" onChange={handleCategory}></input>
+            <input type="text" className="product-card-category" onClick={handleSelect} placeholder="Category" onChange={handleCategory}></input>
             </div>
             </div>
             </div>

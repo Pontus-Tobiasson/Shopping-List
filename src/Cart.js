@@ -67,8 +67,12 @@ const CartFooter = (props) => {
 const CartProduct = (props) => {
     const [products, setProducts, category, setCategory, search, setSearch, cart, setCart] = useContext(AppContext);
 
+    const handleSelect = (event) => event.target.select();
     const handleValue = (event) => sendValue(parseInt(event.target.value, 10));
     function sendValue(value) {
+        let temp_products = products;
+        temp_products.find(product => product.name === props.name).value = value;
+        setProducts([...temp_products]);
         fetch(serverAddress+"/cart/"+props.name, { method: 'PUT', body: JSON.stringify({ value: value })})
         .then(() => props.refreshProducts())
         .catch(function(error) {
@@ -89,7 +93,7 @@ const CartProduct = (props) => {
     return (
         <div className="cart-product">
         <p className="cart-product-name">{props.name}</p>
-        <input className="cart-product-input" type="text" onKeyPress={validateNumericInput.bind(this)} onChange={handleValue} value={parseInt(props.value, 10)}></input>
+        <input className="cart-product-input" type="text" onKeyPress={validateNumericInput.bind(this)} onClick={handleSelect} onChange={handleValue} value={parseInt(props.value, 10)}></input>
         <img className="cart-product-delete red-hover" src={require("../src/images/delete-black.svg")} onClick={deleteProduct} alt={"Delete icon"}></img>
         </div>
     );

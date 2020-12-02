@@ -1,0 +1,4 @@
+	search name lägg till det man sökt på hitills
+	updatera value lokalt först
+	ta bort allt knapp på search
+	markera allt på cart number selection

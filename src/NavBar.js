@@ -5,7 +5,10 @@ const SearchBar = () => {
     const [products, setProducts, category, setCategory, search, setSearch, cart, setCart] = useContext(AppContext);
     
     return (
-        <input className="searchBar" type="text" id="searchBar" placeholder="Search" onChange={(event) => setSearch(event.target.value)}></input>
+        <div className="searchBar">
+        <input className="searchInput" type="text" id="searchBar" placeholder="Search" onChange={(event) => setSearch(event.target.value)} value={search}></input>
+        <img className="searchReset red-hover" src={require("../src/images/cancel-black.svg")} onClick={() => setSearch("")} alt={"Reset search"}></img>
+        </div>
     );
 }
 

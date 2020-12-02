@@ -256,12 +256,30 @@ body {
 }
 
 .searchBar {
-    font-family: 'Open Sans', sans-serif;
-    width: 120px;
-    height: 24px;
-
+    display: flex;
+    background: white;
     border: solid 1px #c0c0c0;
-    border-radius: 0px;
+    height: 26px;
+    width: 120px;
+}
+
+.searchInput {
+    width: 90px;
+    height: 22px;
+    padding: 2px;
+    border: 0;
+    font-family: 'Open Sans', sans-serif;
+
+}
+
+.searchBar:hover .searchReset {
+    visibility: visible;
+}
+
+.searchReset {
+    visibility: hidden;
+    height: 22px;
+    padding: 2px;
 }
 
 .searchBar:hover {
