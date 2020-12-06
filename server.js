@@ -1,8 +1,8 @@
 // Server side implementation for the Shopping list application
 
 const MongoClient = require('mongodb').MongoClient;
-const dburl = "mongodb://localhost:27017/";
-//const dburl = "mongodb+srv://"+process.env.MONGODB_USERNAME+":"+process.env.MONGODB_PASSWORD+"@cluster0.26pqd.gcp.mongodb.net/shoppingdb?retryWrites=true&w=majority";
+//const dburl = "mongodb://localhost:27017/";
+const dburl = "mongodb+srv://"+process.env.MONGODB_USERNAME+":"+process.env.MONGODB_PASSWORD+"@cluster0.26pqd.gcp.mongodb.net/shoppingdb?retryWrites=true&w=majority";
 const port = process.env.PORT || 8080;
 const database = "shoppingdb";
 
@@ -96,7 +96,7 @@ function update(entry, res, message) {
 
     if (entry.image !== undefined) {
         if (indexOfId(images, entry_id)  === -1) images.push({ _id: entry._id, image: entry.image });
-        if (entry.image === null) {   
+        if (entry.image === null) {
             images.splice(indexOfId(images, entry._id), 1);
             sendResponse(res, message);
         } else {
@@ -322,7 +322,7 @@ app.post('/products', (req, res) => {
             res.sendStatus(409);
             return;
         }
-        
+
         MongoClient.connect(dburl, { useUnifiedTopology: true }, function(error, db) {
             const dbo = db.db(database);
 
@@ -449,7 +449,7 @@ app.get('*', (req, res) => {
     } else if (path.extname(req.url) === ".svg") {
         res.writeHead(200, {'Content-Type': 'image/svg+xml'});
     }
-    
+
     res.sendFile(__dirname + "/build/" + req.url);
     console.log("Sending file " + req.url);
 });
