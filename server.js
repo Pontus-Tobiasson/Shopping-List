@@ -1,7 +1,7 @@
 // Server side implementation for the Shopping list application
 
 const MongoClient = require('mongodb').MongoClient;
-//const dburl = "mongodb://localhost:27017/";
+// const dburl = "mongodb://localhost:27017/";
 const dburl = "mongodb+srv://"+process.env.MONGODB_USERNAME+":"+process.env.MONGODB_PASSWORD+"@cluster0.26pqd.gcp.mongodb.net/shoppingdb?retryWrites=true&w=majority";
 const port = process.env.PORT || 8080;
 const database = "shoppingdb";
@@ -438,16 +438,6 @@ app.get('*', (req, res) => {
     if (req.url.includes("..")) {
         console.error(req.url + " is outside of the designated folder");
         return;
-    }
-
-    if(path.extname(req.url) === ".html") {
-        res.writeHead(200, {'Content-Type': 'text/html'});
-    } else if (path.extname(req.url) === ".js") {
-        res.writeHead(200, {'Content-Type': 'text/javascript'});
-    } else if (path.extname(req.url) === ".css") {
-        res.writeHead(200, {'Content-Type': 'text/css'});
-    } else if (path.extname(req.url) === ".svg") {
-        res.writeHead(200, {'Content-Type': 'image/svg+xml'});
     }
 
     res.sendFile(__dirname + "/build/" + req.url);
