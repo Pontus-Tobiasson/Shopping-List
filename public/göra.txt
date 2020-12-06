@@ -1,2 +1,0 @@
-lägga till när det man söker på fins som substring i något annat
-cart ska ordnas efter kategori och sen namn

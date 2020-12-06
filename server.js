@@ -1,6 +1,8 @@
+// Server side implementation for the Shopping list application
+
 const MongoClient = require('mongodb').MongoClient;
-//const dburl = "mongodb://localhost:27017/";
-const dburl = "mongodb+srv://"+process.env.MONGODB_USERNAME+":"+process.env.MONGODB_PASSWORD+"@cluster0.26pqd.gcp.mongodb.net/shoppingdb?retryWrites=true&w=majority";
+const dburl = "mongodb://localhost:27017/";
+//const dburl = "mongodb+srv://"+process.env.MONGODB_USERNAME+":"+process.env.MONGODB_PASSWORD+"@cluster0.26pqd.gcp.mongodb.net/shoppingdb?retryWrites=true&w=majority";
 const port = process.env.PORT || 8080;
 const database = "shoppingdb";
 
@@ -10,6 +12,7 @@ const bodyParser = require('body-parser')
 const fs = require('fs');
 const sharp = require('sharp');
 const formidable = require('formidable');
+const path = require('path')
 
 function indexOfId(array, id) {
     const _id = id.toString();
@@ -26,10 +29,10 @@ function findImage(id) {
     return images.find(image => image._id.toString() === _id);
 }
 
-let products = [];
-let cart = [];
-let images = [];
-let delta = [];
+let products = []; // All products. Format: { id: <MongoDB id>, name: <String>, category: <String> }
+let cart = [];     // Items in the cart (current shopping list). Format: { id: <MongoDB id>, value: <Number> }
+let images = [];   // Images for products. Format: { id: <MongoDB id>, image: <Object> }
+let delta = [];    // All changes that have not yet been backed up to the database Format: { id: <MongoDB id>, name: <String>, category: <String> value: <Number> image: <Object> }
 
 // Initiate products, cart and images with data from MongoDB
 MongoClient.connect(dburl, { useUnifiedTopology: true }, function(error, db) {
@@ -93,53 +96,53 @@ function update(entry, res, message) {
 
     if (entry.image !== undefined) {
         if (indexOfId(images, entry_id)  === -1) images.push({ _id: entry._id, image: entry.image });
-        if (entry.image === null) {
+        if (entry.image === null) {   
             images.splice(indexOfId(images, entry._id), 1);
+            sendResponse(res, message);
         } else {
-            images.find(x => x._id.toString() === entry_id).image = entry.image;
+            sharp(entry.image.path)
+            .toBuffer((err, data, info) => {
+                const scale = 94 / Math.max(info.width, info.height, 1)
+                const width = Math.floor(info.width * scale, 10);
+                const height = Math.floor(info.height * scale, 10);
+                sharp(entry.image.path)
+                .resize(width, height)
+                .toFormat("png")
+                .toBuffer((err, img, info) => {
+                    fs.unlink(entry.image.path, (err) => {
+                        if (err) {
+                            console.log("failed to remove temp image");
+                            throw err;
+                        }
+                    });
+                    if (err) {
+                        console.log("failed to convert image to buffer");
+                        throw err;
+                    }
+                    images.find(x => x._id.toString() === entry_id).image = img;
+                    delta.find(x => x._id.toString() === entry_id).image = img;
+                    sendResponse(res, message);
+                });
+                if (err) {
+                    console.log("failed to convert image to buffer");
+                    throw err;
+                }
+            });
         }
-        delta.find(x => x._id.toString() === entry_id).image = entry.image;
+    } else {
+        sendResponse(res, message);
     }
+}
 
+function sendResponse(res, message) {
     if (res !== undefined) {
-        if (isNaN(message))
-        {
+        if (isNaN(message)) {
             res.end(message);
         } else {
             res.sendStatus(message);
         }
     }
-
     queueUpdate();
-}
-
-function updateWithImage(_id, name, category, value, image, res, message) {
-    sharp(image.path)
-    .toBuffer((err, data, info) => {
-        const scale = 94 / Math.max(info.width, info.height, 1)
-        const width = Math.floor(info.width * scale, 10);
-        const height = Math.floor(info.height * scale, 10);
-        sharp(image.path)
-        .resize(width, height)
-        .toFormat("png")
-        .toBuffer((err, img, info) => {
-            fs.unlink(image.path, (err) => {
-                if (err) {
-                    console.log("failed to remove temp image");
-                    throw err;
-                }
-            });
-            if (err) {
-                console.log("failed to convert image to buffer");
-                throw err;
-            }
-            update({ _id: _id, name: name, category: category, value: value, image: img }, res, message);
-        });
-        if (err) {
-            console.log("failed to convert image to buffer");
-            throw err;
-        }
-    });
 }
 
 let updating = false;
@@ -163,8 +166,7 @@ function applyUpdateToMongo(snapshot_delta) {
         snapshot_delta.forEach(change => {
             if (change._id === undefined) return;
 
-            if (change.name !== undefined && change.category !== undefined)
-            {
+            if (change.name !== undefined && change.category !== undefined) {
                 if (change.name === null || change.category === null) {
                     dbo.collection("products").deleteOne({ _id: change._id }, function(error, result) {
                         if (error) throw error;
@@ -271,7 +273,7 @@ app.get('/images/:image', (req, res) => {
         return;
     }
 
-    const img = findImage(products.find(x => x.name.toLowerCase() === _image)._id);
+    const img = findImage(findProduct(_image)._id);
     if (img === undefined) {
         console.log("Sending default image");
         res.sendFile(__dirname + "/DefaultImage.png");
@@ -310,23 +312,21 @@ app.post('/products', (req, res) => {
         }
         const product = { name: fields.name.toString(), category: fields.category.toString(), image: files.image };
         // Check that the product data contains both a name and a category
-        if (!product.name || !product.category)
-        {
+        if (!product.name || !product.category) {
             console.log("Product lacks necessary data");
             res.sendStatus(404);
             return;
         }
-        if (products.find(p => p.name.toLowerCase() === product.name.toLowerCase()))
-        {
+        if (findProduct(product.name)) {
             console.log("Product already exists");
             res.sendStatus(409);
             return;
         }
-
+        
         MongoClient.connect(dburl, { useUnifiedTopology: true }, function(error, db) {
             const dbo = db.db(database);
 
-            if (!products.find(prod => prod.name === "")) {
+            if (!findProduct("")) {
                 console.log("No pre-generated product ID found");
                 dbo.collection("products").insertOne({ name: "", category: "" }, function(error, result) {
                     if (error) throw error;
@@ -334,13 +334,13 @@ app.post('/products', (req, res) => {
                     if (product.image  === undefined) {
                         update({ _id: result.insertedId, name: product.name, category: product.category });
                     } else {
-                        updateWithImage(result.insertedId, product.name, product.category, undefined, product.image, res, 200);
+                        update({ _id: result.insertedId, name: product.name, category: product.category, value: undefined, image: product.image }, res, 200);
                     }
                 });
             } else if (product.image === undefined) {
-                    update({ _id: products.find(prod => prod.name === "")._id, name: product.name, category: product.category }, res, 200);
+                    update({ _id: findProduct("")._id, name: product.name, category: product.category }, res, 200);
                 } else {
-                    updateWithImage(products.find(p => p.name === "")._id, product.name, product.category, undefined, product.image, res, 200);
+                    update({ _id: findProduct("")._id, name: product.name, category: product.category, value: undefined, image: product.image }, res, 200);
             }
             console.log("Generating new product ID")
             dbo.collection("products").insertOne({ name: "", category: "" }, function(error, result) {
@@ -365,6 +365,7 @@ app.put('/products/:oldName', (req, res) => {
     const formidable = require('formidable');
     const formData = formidable({ multiples: true });
     formData.parse(req, (err, fields, files) => {
+        if (err) console.error(err);
         if (!fields.name || !fields.category)
         {
             console.log("POST product lacks necessary data")
@@ -383,7 +384,7 @@ app.put('/products/:oldName', (req, res) => {
         if (product.image === undefined) {
             update({ _id: findProduct(oldName)._id, name: product.name, category: product.category }, res, 200);
         } else {
-            updateWithImage(products.find(p => p.name === "")._id, product.name, product.category, undefined, product.image, res, 200);
+            update({ _id: findProduct(oldName)._id, name: product.name, category: product.category, value: undefined, image: product.image }, res, 200);
         }
     });
 });
@@ -391,9 +392,10 @@ app.put('/products/:oldName', (req, res) => {
 app.delete('/products/:product', (req, res) => {
     const {product} = req.params;
     console.log("Request to delete product " + product);
-    if (findProduct(product) !== undefined) {
+    let prod = findProduct(product);
+    if (prod !== undefined) {
         console.log("Deleting product " + product);
-        update({ _id: findProduct(product)._id, name: null, category: null, value: null, image: null }, res, 200);
+        update({ _id: prod._id, name: null, category: null, value: null, image: null }, res, 200);
     } else {
         console.log("Product " + product + " not found");
         res.sendStatus(404);
@@ -437,6 +439,17 @@ app.get('*', (req, res) => {
         console.error(req.url + " is outside of the designated folder");
         return;
     }
+
+    if(path.extname(req.url) === ".html") {
+        res.writeHead(200, {'Content-Type': 'text/html'});
+    } else if (path.extname(req.url) === ".js") {
+        res.writeHead(200, {'Content-Type': 'text/javascript'});
+    } else if (path.extname(req.url) === ".css") {
+        res.writeHead(200, {'Content-Type': 'text/css'});
+    } else if (path.extname(req.url) === ".svg") {
+        res.writeHead(200, {'Content-Type': 'image/svg+xml'});
+    }
+    
     res.sendFile(__dirname + "/build/" + req.url);
     console.log("Sending file " + req.url);
 });

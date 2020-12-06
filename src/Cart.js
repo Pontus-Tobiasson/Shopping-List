@@ -6,13 +6,12 @@ import { serverAddress } from './Variables.js'
 
 function sortProducts(products) {
     return products.sort((a, b) => {
-        const a_name_L = a.name.toLowerCase()
         const a_cat_L = a.category.toLowerCase();
-        const b_name_L = b.name.toLowerCase()
         const b_cat_L = b.category.toLowerCase();
-        if (a_cat_L !== b_cat_L) {
-            return a_cat_L > b_cat_L ? 1 : -1;
-        }
+        if (a_cat_L !== b_cat_L) return a_cat_L > b_cat_L ? 1 : -1;
+
+        const a_name_L = a.name.toLowerCase()
+        const b_name_L = b.name.toLowerCase()
         return a_name_L > b_name_L ? 1 : (b_name_L > a_name_L) ? -1 : 0;
     });
 }
@@ -26,8 +25,26 @@ const CartFooter = (props) => {
             if (response.status === 200) props.refreshProducts();
         })
         .catch(function(error) {
-            console.log(error);
+            console.error(error);
         });
+    }
+
+    function formatPrint(print) {
+        if (typeof print === 'string') {
+            return print.slice(0, 30);
+        }
+        if (typeof print === 'number') {
+            print = print.toString();
+            const length = print.length;
+
+            if (length > 4) return print.slice(0, 4) + "\u00A0\u00A0";
+
+            for (let i = length; i < 5; i++) {
+                print += '\u00A0\u00A0';
+            }
+            return print;
+        }
+        return undefined;
     }
 
     function printProducts() {
@@ -40,11 +57,14 @@ const CartFooter = (props) => {
             if (product.value > 0) {
                 if (previousCategory !== product.category) {
                     if (previousCategory !== "") newDiv.appendChild(document.createElement("br"));
-                    newDiv.appendChild(document.createTextNode(product.category));
+                    let cat = document.createElement("b");
+                    cat.innerHTML = formatPrint(product.category);
+                    newDiv.appendChild(cat);
                     newDiv.appendChild(document.createElement("br"));
                     previousCategory = product.category;
                 }
-                newDiv.appendChild(document.createTextNode(product.name + " " + product.value));
+                newDiv.appendChild(document.createTextNode(formatPrint(product.value)));
+                newDiv.appendChild(document.createTextNode(formatPrint(product.name)));
                 printDiv.appendChild(newDiv);
             }
         }
@@ -53,7 +73,7 @@ const CartFooter = (props) => {
         document.getElementById("list").append(printDiv);
         window.print();
         document.getElementById("list").innerHTML = '';
-        document.getElementById("root").style.display = "block";
+        document.getElementById("root").style.display = "";
     }
 
     return (
@@ -70,6 +90,8 @@ const CartProduct = (props) => {
     const handleSelect = (event) => event.target.select();
     const handleValue = (event) => sendValue(parseInt(event.target.value, 10));
     function sendValue(value) {
+        if (value < 0) return;
+        if (isNaN(value)) value = 0;
         let temp_products = products;
         temp_products.find(product => product.name === props.name).value = value;
         setProducts([...temp_products]);

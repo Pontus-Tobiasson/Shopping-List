@@ -11,7 +11,6 @@ const Product = (props) => {
     const [newName, setNewName] = useState(props.name);
     const [newCategory, setNewCategory] = useState(props.category);
     const [image, setImage] = useState(null);
-    const [hovering, setHovering] = useState(false);
     const [editing, setEditing] = useState(false);
     const [deleting, setDeleting] = useState(false);
 
@@ -41,8 +40,13 @@ const Product = (props) => {
         const handleCategory = (event) => setNewCategory(event.target.value);
         const handleValue = (event) => sendValue(parseInt(event.target.value, 10));
         const handleSelect = (event) => event.target.select();
+        const handleKeyDown = (event) => {
+            if (event.key === "Enter") save();
+        }
 
         function sendValue(value) {
+            if (value < 0) return;
+            if (isNaN(value)) value = 0;
             let temp_products = products;
             temp_products.find(product => product.name === props.name).value = value;
             setProducts([...temp_products]);
@@ -103,9 +107,9 @@ const Product = (props) => {
             // Draw a preview image of the dropped file on a canvas
             const preview = document.createElement("img");
             const reader = new FileReader();
-            reader.onload=(function(previewImage){
+            reader.onload=(function(previewImage) {
                 return function(event) {
-                    previewImage.onload=function(){
+                    previewImage.onload=function() {
                         let scale = 94 / previewImage.width;
                         if (previewImage.width < previewImage.height) scale = 94 / previewImage.height;
                         let width = Math.floor(previewImage.width * scale, 10);
@@ -178,13 +182,13 @@ const Product = (props) => {
             <img className="product-card-icon blue-hover" src={require("../src/images/save-black.svg")} onClick={() => save()} alt={"Save icon"}></img>
             <img className="product-card-expand" src={require("../src/images/expand_more-black.svg")} alt={"Expand icon"}></img>
             </div>
-            <input type="text" className="product-card-name" placeholder={props.name} onChange={handleName}></input>
+            <input type="text" className="product-card-name" placeholder={props.name} onKeyDown={handleKeyDown} onChange={handleName}></input>
             <div className="product-card-background"></div>
             <img className="transparent-image" src={serverAddress+"/images/"+props.name+"?"+cacheNumbers[props.name]}></img>
             <div className="drop-text">Drop New Image Here</div>
             <canvas className="canvas-preview" id={"canvas-create-"+props.name} width={94} height={94}></canvas>
             <div className="product-add-image" onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop}></div>
-            <input type="text" className="product-card-category" placeholder={props.category} onChange={handleCategory}></input>
+            <input type="text" className="product-card-category" placeholder={props.category} onKeyDown={handleKeyDown} onChange={handleCategory}></input>
             </div>
             <div className="product-back-side">
             <div className="product-card-title">{props.name}</div>
@@ -207,6 +211,9 @@ const Product = (props) => {
         const handleName = (event) => setNewName(event.target.value);
         const handleCategory = (event) => setNewCategory(event.target.value);
         const handleSelect = (event) => event.target.select();
+        const handleKeyDown = (event) => {
+            if (event.key === "Enter") save();
+        }
 
         const handleDragEnter = dragEnter.bind(this);
         function dragEnter(event) {
@@ -297,6 +304,7 @@ const Product = (props) => {
                 }
             })
             .catch(function(error) {
+                console.error(error);
             });
             document.getElementById('searchBar').value = newName;
             setSearch(newName);
@@ -322,12 +330,12 @@ const Product = (props) => {
             <img className="product-card-icon blue-hover" src={require("../src/images/save-black.svg")} onClick={() => save()} alt={"Save icon"}></img>
             <img className="product-card-expand" src={require("../src/images/expand_more-black.svg")} alt={"Expand icon"}></img>
             </div>
-            <input type="text" className="product-card-name" onClick={handleSelect} onChange={handleName} value={newName}></input>
+            <input type="text" className="product-card-name" onClick={handleSelect} onKeyDown={handleKeyDown} onChange={handleName} value={newName}></input>
             <div className="product-card-background"></div>
             <div className="drop-text">Drop New Image Here</div>
             <canvas className="canvas-preview" id="canvas-create" width={94} height={94}></canvas>
             <div className="product-add-image" onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop}></div>
-            <input type="text" className="product-card-category" onClick={handleSelect} placeholder="Category" onChange={handleCategory}></input>
+            <input type="text" className="product-card-category" onClick={handleSelect} placeholder="Category" onKeyDown={handleKeyDown} onChange={handleCategory}></input>
             </div>
             </div>
             </div>

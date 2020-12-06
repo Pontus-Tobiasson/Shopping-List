@@ -3,11 +3,13 @@ import { AppContext } from './index';
 
 const SearchBar = () => {
     const [products, setProducts, category, setCategory, search, setSearch, cart, setCart] = useContext(AppContext);
-    
+    function resetButton() {
+        if (search !== "") return (<img className="searchReset red-hover" src={require("../src/images/cancel-black.svg")} onClick={() => setSearch("")} alt={"Reset search"}></img>);
+    }
     return (
         <div className="searchBar">
         <input className="searchInput" type="text" id="searchBar" placeholder="Search" onChange={(event) => setSearch(event.target.value)} value={search}></input>
-        <img className="searchReset red-hover" src={require("../src/images/cancel-black.svg")} onClick={() => setSearch("")} alt={"Reset search"}></img>
+        {resetButton()}
         </div>
     );
 }
@@ -24,7 +26,7 @@ const NavBar = () => {
                 </div>
                 <SearchBar />
             </div>
-            <div className="title">Groceries</div>
+            <div className="title">Shopping List</div>
             <img className="cart-button blue-hover" onClick={() => document.body.classList.toggle('cart-is-open')}></img>
         </div>
     );

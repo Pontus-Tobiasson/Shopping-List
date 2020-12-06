@@ -272,12 +272,7 @@ body {
 
 }
 
-.searchBar:hover .searchReset {
-    visibility: visible;
-}
-
 .searchReset {
-    visibility: hidden;
     height: 22px;
     padding: 2px;
 }
