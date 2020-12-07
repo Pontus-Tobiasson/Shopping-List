@@ -19,7 +19,7 @@ body {
 }
 
 .page {
-    grid-template-columns: auto 3fr 1fr;
+    grid-template-columns: auto 3fr 300px;
     grid-template-rows: auto minmax(0,1fr);
 }
 
