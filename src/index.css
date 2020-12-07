@@ -190,13 +190,14 @@ body {
 
 .product-list {
     border: solid 1px #C0C0C0;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .cart {
     border: solid 1px #C0C0C0;
     background: #FFFFFF;
-    max-width: 450px;
+    width: 300px;
     display: grid;
     grid-template-rows: auto minmax(0, 1fr) auto;
     color: #36454f;
