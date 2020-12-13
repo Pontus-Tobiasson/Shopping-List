@@ -21,7 +21,7 @@ const NavBar = () => {
         <div className="navbar">
             <div className="search-group">
                 <div className="categories-dropdown" onClick={() => document.body.classList.toggle('cat-is-open')}>
-                    <div className="categories-selected">All</div>
+                    <div className="categories-selected">{category}</div>
                     <img className="categories-button blue-hover"></img>
                 </div>
                 <SearchBar />

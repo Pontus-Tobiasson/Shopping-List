@@ -1,7 +1,7 @@
 // Server side implementation for the Shopping list application
 
 const MongoClient = require('mongodb').MongoClient;
-// const dburl = "mongodb://localhost:27017/";
+//const dburl = "mongodb://localhost:27017/";
 const dburl = "mongodb+srv://"+process.env.MONGODB_USERNAME+":"+process.env.MONGODB_PASSWORD+"@cluster0.26pqd.gcp.mongodb.net/shoppingdb?retryWrites=true&w=majority";
 const port = process.env.PORT || 8080;
 const database = "shoppingdb";
