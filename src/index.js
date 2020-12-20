@@ -1,4 +1,4 @@
-import React, { useState, createContext } from 'react';
+import React, { useState, createContext, useCallback, useEffect} from 'react';
 import ReactDOM from 'react-dom';
 import '../src/index.css';
 import NavBar from './NavBar.js';
@@ -15,13 +15,7 @@ export const App = () => {
     const [cart, setCart] = useState(false);
     const [search, setSearch] = useState("");
 
-    const [initiated, setInitiated] = useState(false);
-    if (!initiated) {
-        setInitiated(true);
-        refreshProducts();
-    }
-
-    function refreshProducts() {
+    const refreshProducts = useCallback(() =>
         fetch(serverAddress + "/products", { method: 'GET' })
         .then(response => response.json())
         .then(serverProducts => {
@@ -34,8 +28,12 @@ export const App = () => {
         })
         .catch(function(error) {
             console.log(error);
-        });
-    }
+        })
+    ,[]);
+
+    useEffect(() => {
+        refreshProducts();
+    }, [])
 
     return (
         <div className="page">
